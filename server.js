@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
+const path = require("path");
 const app = express();
 const port = 3000;
 
@@ -10,6 +11,11 @@ const db = require("./database");
 
 // Middleware for parsing JSON bodies
 app.use(bodyParser.json());
+app.use(express.static("public"));
+
+app.get("/", function (req, res) {
+  res.sendFile(path.join(__dirname, "/public/itemPriceTracker.html"));
+});
 
 // Endpoint to get items
 app.get("/api/items", (req, res) => {

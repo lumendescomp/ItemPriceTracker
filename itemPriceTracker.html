@@ -1,0 +1,54 @@
+<html>
+  <head>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <style>
+    body {
+      display: flex;
+      justify-content: space-between;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 50px;
+    }
+    button {
+      margin-top: 10px;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+  </style>
+  <body>
+    <div id="chart"></div>
+    <div>
+      <form id="addItemForm" onsubmit="addItem(event)">
+        <label for="itemName">Produto:</label>
+        <input type="text" id="itemName" name="itemName" required />
+
+        <label for="itemPrice">Preço:</label>
+        <input
+          type="currency"
+          id="itemPrice"
+          name="itemPrice"
+          pattern="^\d+(,\d{1,2})?$"
+          title="Please enter a valid price (e.g., 23,45)"
+          required
+          min="1"
+          max="150"
+        />
+
+        <label for="placeName">Local de Consumo:</label>
+        <input type="text" id="placeName" name="placeName" />
+
+        <button type="submit">Add</button>
+      </form>
+      <div id="infoPanel"></div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

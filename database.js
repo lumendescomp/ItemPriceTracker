@@ -13,7 +13,8 @@ const createTableQuery = `
     id SERIAL PRIMARY KEY,
     name TEXT NOT NULL,
     price REAL NOT NULL,
-    place TEXT
+    place TEXT,
+    comments TEXT
   )
 `;
 
@@ -26,7 +27,7 @@ function initializeDatabase() {
       if (err) {
         console.error(err);
       } else {
-        console.log("Table is successfully created");
+        console.log("DATABASE STARTED");
       }
     });
   });
@@ -40,10 +41,10 @@ function getItems(callback) {
 }
 
 // Function to add an item
-function addItem(name, price, place, callback) {
+function addItem(name, price, place, comments, callback) {
   pool.query(
-    "INSERT INTO items (name, price, place) VALUES ($1, $2, $3) RETURNING id",
-    [name, price, place],
+    "INSERT INTO items (name, price, place, comments) VALUES ($1, $2, $3, $4) RETURNING id",
+    [name, price, place, comments],
     (err, result) => {
       callback(err, result.rows[0]);
     }

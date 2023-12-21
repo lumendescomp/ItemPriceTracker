@@ -43,8 +43,8 @@ app.get("/api/items/search", (req, res) => {
 
 // Endpoint to add an item
 app.post("/api/items", (req, res) => {
-  const { name, price, place } = req.body;
-  db.addItem(name, price, place, (err, result) => {
+  const { name, price, place, comments } = req.body;
+  db.addItem(name, price, place, comments, (err, result) => {
     if (err) {
       res.status(500).send(err.message);
     } else {

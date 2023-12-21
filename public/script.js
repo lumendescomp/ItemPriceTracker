@@ -1,7 +1,7 @@
 // Convert the prices to numbers for D3 to understand
 function updateChart(data) {
   data.forEach((d, i) => {
-    d.name = d.name + i; // Example: "ProductName1"
+    d.name = d.name + "_" + i; // Example: "ProductName1"
   });
   // Set dimensions and margins for the graph
   var margin = { top: 100, right: 30, bottom: 200, left: 60 },
@@ -33,7 +33,7 @@ function updateChart(data) {
     .call(d3.axisBottom(x))
     .selectAll("text")
     .text(function (d) {
-      return d.slice(0, -1); // This will remove the last character from the label
+      return d.slice(0, d.indexOf("_")); // This will remove the last character from the label
     })
     .style("text-anchor", "end")
     .attr("dx", "-.9em")
@@ -143,6 +143,7 @@ function addItem(event) {
   var itemName = document.getElementById("itemName").value;
   var itemPrice = document.getElementById("itemPrice").value.replace(",", ".");
   var placeName = document.getElementById("placeName").value;
+  var comments = document.getElementById("comments").value;
 
   fetch("/api/items", {
     method: "POST",
@@ -153,12 +154,17 @@ function addItem(event) {
       name: itemName,
       price: parseFloat(itemPrice),
       place: placeName,
+      comments: comments,
     }),
   })
     .then((response) => response.json())
     .then((data) => {
       // Fetch all items again and update the chart
       fetchItemsAndUpdateChart();
+      document.getElementById("itemName").value = "";
+      document.getElementById("itemPrice").value = "";
+      document.getElementById("placeName").value = "";
+      document.getElementById("comments").value = "";
     })
     .catch((error) => console.error("Error adding item:", error));
 }
@@ -171,9 +177,10 @@ function openInfoPanel(itemData) {
   // Crie o conteúdo do painel com as informações do item
   const panelContent = `
     <h3>Informações do Produto</h3>
-    <p>Nome: ${itemData.name}</p>
+    <p>Nome: ${itemData.name.slice(0, itemData.name.indexOf("_"))}</p>
     <p>Preço: ${itemData.price}</p>
     <p>Local de Consumo: ${itemData.place || "Não cadastrado"}</p>
+    <p>Comentário: ${itemData?.comments || "Nenhum"}</p>
     <input type="password" id="deletePassword" placeholder="Digite a senha para excluir"/>
     <button onclick="deleteItem(${itemData.id})">Excluir</button>
   `;

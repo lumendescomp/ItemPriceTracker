@@ -4,6 +4,48 @@
   </head>
   <link rel="stylesheet" href="styles.css" />
   <body>
+    <div id="filterDiv">
+      <div id="searchDiv">
+        <label for="searchInput">Procure um Item:</label>
+        <input
+          type="text"
+          id="searchInput"
+          name="searchInput"
+          placeholder="Digite para buscar..."
+          onkeyup="debouncedSearch()"
+        />
+      </div>
+      <div id="priceDiv">
+        <label for="priceMin">Preço Mínimo:</label>
+        <input
+          type="number"
+          id="priceMin"
+          name="priceMin"
+          placeholder="Mínimo"
+          oninput="filterItems()"
+        />
+  
+        <label for="priceMax">Preço Máximo:</label>
+        <input
+          type="number"
+          id="priceMax"
+          name="priceMax"
+          placeholder="Máximo"
+          oninput="filterItems()"
+        />
+
+        <label for="filterCategory">Categoria:</label>
+        <select id="filterCategory" name="filterCategory" onchange="filterItems()">
+          <option value="" selected>Todas as Categorias</option>
+          <option value="Comida">Alimento</option>
+          <option value="Roupa">Roupa</option>
+          <option value="Passeio">Passeio</option>
+          <!-- Add more categories as needed -->
+        </select>
+      </div>
+    </div>
+    
+  </div>
     <div id="chart"></div>
     <div>
       <form id="addItemForm" onsubmit="addItem(event)">
@@ -28,40 +70,18 @@
         <label for="comments">Comentário:</label>
         <input type="text" id="comments" name="comments" />
 
+        <label for="itemCategory">Categoria:</label>
+        <select id="itemCategory" name="itemCategory">
+          <option value="" disabled selected>Selecione uma categoria</option>
+          <option value="Comida">Alimento</option>
+          <option value="Roupa">Roupa</option>
+          <option value="Passeio">Passeio</option>
+          <!-- Add more categories as needed -->
+        </select>
+
         <button type="submit">Add</button>
       </form>
       <div id="infoPanel"></div>
-      <div id="searchDiv">
-        <label for="searchInput">Procure um Item:</label>
-        <input
-          type="text"
-          id="searchInput"
-          name="searchInput"
-          placeholder="Digite para buscar..."
-          onkeyup="debouncedSearch()"
-        />
-      </div>
-      <div id="priceDiv">
-        <label for="priceMin">Preço Mínimo:</label>
-        <input
-          type="number"
-          id="priceMin"
-          name="priceMin"
-          placeholder="Mínimo"
-          oninput="filterItems()"
-        />
-
-        <label for="priceMax">Preço Máximo:</label>
-        <input
-          type="number"
-          id="priceMax"
-          name="priceMax"
-          placeholder="Máximo"
-          oninput="filterItems()"
-        />
-      </div>
-    </div>
-
     <script src="script.js"></script>
   </body>
 </html>

@@ -1,3 +1,9 @@
+const categoryColors = {
+  Comida: "#4e79a7",
+  Roupa: "#f28e2b",
+  Passeio: "#e15759",
+  // Add more categories and their corresponding colors here
+};
 // Convert the prices to numbers for D3 to understand
 function updateChart(data) {
   data.forEach((d, i) => {
@@ -44,24 +50,6 @@ function updateChart(data) {
   var y = d3.scaleLinear().domain([0, 150]).range([height, 0]);
   svg.append("g").call(d3.axisLeft(y).tickValues(d3.range(0, 160, 10))); // Set ticks every 5
 
-  // Bars
-  svg
-    .selectAll("mybar")
-    .data(data)
-    .enter()
-    .append("rect")
-    .attr("x", function (d) {
-      return x(d.name);
-    })
-    .attr("y", function (d) {
-      return y(d.price);
-    })
-    .attr("width", x.bandwidth())
-    .attr("height", function (d) {
-      return height - y(d.price);
-    })
-    .attr("fill", "#69b3a2");
-
   // Optional: add a label to each bar
   svg
     .selectAll(".label")
@@ -107,19 +95,18 @@ function updateChart(data) {
     .attr("height", function (d) {
       return height - y(d.price);
     })
-    .attr("fill", "#4e79a7") // Changed to a different color
-    .attr("stroke", "#ffffff") // Added white stroke
-    .attr("stroke-width", "1px") // Stroke width
+    .attr("fill", (d) => categoryColors[d.category] || "#000")
+    .attr("stroke", "#ffffff")
+    .attr("stroke-width", "1px")
     .on("click", (event, d) => {
-      console.log("Bar clicked", d); // This should log to the console when a bar is clicked
       openInfoPanel(d);
     })
     .on("mouseover", function () {
       d3.select(this).attr("fill", "#76b7b2");
-    }) // Color on hover
-    .on("mouseout", function () {
-      d3.select(this).attr("fill", "#4e79a7");
-    }); // Color when not hovered
+    })
+    .on("mouseout", function (event, d) {
+      d3.select(this).attr("fill", categoryColors[d.category]);
+    });
 }
 
 // DATABASE - NODE ACCESS
@@ -140,10 +127,13 @@ function fetchItemsAndUpdateChart() {
 function addItem(event) {
   event.preventDefault();
 
-  var itemName = document.getElementById("itemName").value;
-  var itemPrice = document.getElementById("itemPrice").value.replace(",", ".");
-  var placeName = document.getElementById("placeName").value;
-  var comments = document.getElementById("comments").value;
+  const itemName = document.getElementById("itemName").value;
+  const itemPrice = document
+    .getElementById("itemPrice")
+    .value.replace(",", ".");
+  const placeName = document.getElementById("placeName").value;
+  const comments = document.getElementById("comments").value;
+  const category = document.getElementById("itemCategory").value;
 
   fetch("/api/items", {
     method: "POST",
@@ -155,6 +145,8 @@ function addItem(event) {
       price: parseFloat(itemPrice),
       place: placeName,
       comments: comments,
+      category,
+      category,
     }),
   })
     .then((response) => response.json())
@@ -165,6 +157,7 @@ function addItem(event) {
       document.getElementById("itemPrice").value = "";
       document.getElementById("placeName").value = "";
       document.getElementById("comments").value = "";
+      document.getElementById("itemCategory").value = "";
     })
     .catch((error) => console.error("Error adding item:", error));
 }
@@ -180,7 +173,8 @@ function openInfoPanel(itemData) {
     <p>Nome: ${itemData.name.slice(0, itemData.name.indexOf("_"))}</p>
     <p>Preço: ${itemData.price}</p>
     <p>Local de Consumo: ${itemData.place || "Não cadastrado"}</p>
-    <p>Comentário: ${itemData?.comments || "Nenhum"}</p>
+    <p>Comentário: ${itemData.comments || "Nenhum"}</p>
+    <p>Categoria: ${itemData.category || "Nenhuma"}</p>
     <input type="password" id="deletePassword" placeholder="Digite a senha para excluir"/>
     <button onclick="deleteItem(${itemData.id})">Excluir</button>
   `;
@@ -236,19 +230,22 @@ function filterItems() {
   const searchValue = document.getElementById("searchInput").value;
   const priceMin = document.getElementById("priceMin").value;
   const priceMax = document.getElementById("priceMax").value;
+  const filterCategory = document.getElementById("filterCategory").value;
 
   // Agora inclua a faixa de preço na busca
   fetch(
     `/api/items/search?q=${encodeURIComponent(
       searchValue
-    )}&min=${priceMin}&max=${priceMax}`
+    )}&min=${priceMin}&max=${priceMax}&category=${encodeURIComponent(
+      filterCategory
+    )}`
   )
     .then((response) => response.json())
     .then((data) => {
       d3.select("#chart").html("");
-      updateChart(data); // Atualize o gráfico com os dados filtrados
+      updateChart(data); // Update the chart with the filtered data
     })
     .catch((error) =>
-      console.error("Error fetching items with price filter:", error)
+      console.error("Error fetching items with filters:", error)
     );
 }

@@ -17,7 +17,6 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 #infoPanel {
-  /* Estilos do painel de informações */
   display: none;
   background-color: #f7f7f7;
   border: 1px solid #ccc;
@@ -39,12 +38,12 @@ input::-webkit-inner-spin-button {
   margin-bottom: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-  width: calc(100% - 22px); /* Considerando padding e borda */
+  width: calc(100% - 22px);
 }
 
 #infoPanel button {
   padding: 10px 20px;
-  background-color: #5cb85c; /* Verde */
+  background-color: #5cb85c;
   color: white;
   border: none;
   border-radius: 4px;
@@ -53,18 +52,28 @@ input::-webkit-inner-spin-button {
 }
 
 #infoPanel button:hover {
-  background-color: #cc2e2e; /* Verde mais escuro */
+  background-color: #cc2e2e;
 }
 
 #infoPanel button:active {
-  background-color: #f51f18; /* Verde ainda mais escuro */
+  background-color: #f51f18;
 }
 
 #searchDiv {
   margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
 }
 
 #priceDiv {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+#filterDiv {
   display: flex;
   flex-direction: column;
   gap: 5px;

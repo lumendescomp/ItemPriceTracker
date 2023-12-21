@@ -8,28 +8,15 @@ const pool = new Pool({
   },
 });
 
-const createTableQuery = `
-  CREATE TABLE IF NOT EXISTS items (
-    id SERIAL PRIMARY KEY,
-    name TEXT NOT NULL,
-    price REAL NOT NULL,
-    place TEXT,
-    comments TEXT
-  )
-`;
-
-// Function to connect to the database and create the table
+// Function to connect to the database
 function initializeDatabase() {
   pool.connect((err, client, done) => {
-    if (err) throw err;
-    client.query(createTableQuery, (err, res) => {
-      done();
-      if (err) {
-        console.error(err);
-      } else {
-        console.log("DATABASE STARTED");
-      }
-    });
+    if (err) {
+      console.error("Error connecting to the database:", err);
+    } else {
+      console.log("DATABASE CONNECTED");
+    }
+    done(); // This releases the client back to the pool
   });
 }
 
@@ -41,10 +28,10 @@ function getItems(callback) {
 }
 
 // Function to add an item
-function addItem(name, price, place, comments, callback) {
+function addItem(name, price, place, comments, category, callback) {
   pool.query(
-    "INSERT INTO items (name, price, place, comments) VALUES ($1, $2, $3, $4) RETURNING id",
-    [name, price, place, comments],
+    "INSERT INTO items (name, price, place, comments, category) VALUES ($1, $2, $3, $4, $5) RETURNING id",
+    [name, price, place, comments, category],
     (err, result) => {
       callback(err, result.rows[0]);
     }
@@ -58,27 +45,25 @@ function deleteItem(id, callback) {
   });
 }
 
-function searchItemsWithPriceRange(query, minPrice, maxPrice, callback) {
+function searchItemsWithFilters(query, minPrice, maxPrice, category, callback) {
   const searchQuery = `%${query}%`;
-  const queryText = `
-    SELECT * FROM items
-    WHERE name ILIKE $1
-    AND price >= $2
-    AND price <= $3
-  `;
-  pool.query(
-    queryText,
-    [searchQuery, minPrice || 0, maxPrice || "Infinity"],
-    (err, result) => {
-      callback(err, result.rows);
-    }
-  );
+  let queryText = `SELECT * FROM items WHERE name ILIKE $1 AND price >= $2 AND price <= $3`;
+  let queryParams = [searchQuery, minPrice || 0, maxPrice || "Infinity"];
+
+  if (category && category !== "") {
+    queryText += ` AND category = $4`;
+    queryParams.push(category);
+  }
+
+  pool.query(queryText, queryParams, (err, result) => {
+    callback(err, result.rows);
+  });
 }
 
 module.exports = {
   getItems,
   addItem,
   deleteItem,
-  searchItemsWithPriceRange,
+  searchItemsWithFilters,
   initializeDatabase,
 };

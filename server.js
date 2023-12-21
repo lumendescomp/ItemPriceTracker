@@ -31,8 +31,8 @@ app.get("/api/items", (req, res) => {
 });
 
 app.get("/api/items/search", (req, res) => {
-  const { q, min, max } = req.query;
-  db.searchItemsWithPriceRange(q, min, max, (err, rows) => {
+  const { q, min, max, category } = req.query;
+  db.searchItemsWithFilters(q, min, max, category, (err, rows) => {
     if (err) {
       res.status(500).send(err.message);
     } else {
@@ -43,8 +43,8 @@ app.get("/api/items/search", (req, res) => {
 
 // Endpoint to add an item
 app.post("/api/items", (req, res) => {
-  const { name, price, place, comments } = req.body;
-  db.addItem(name, price, place, comments, (err, result) => {
+  const { name, price, place, comments, category } = req.body;
+  db.addItem(name, price, place, comments, category, (err, result) => {
     if (err) {
       res.status(500).send(err.message);
     } else {
@@ -59,7 +59,6 @@ app.delete("/api/items/:id", (req, res) => {
   const { password } = req.body;
 
   if (password === "apa") {
-    // Substitua pela sua lógica de verificação de senha
     db.deleteItem(id, (err, result) => {
       if (err) {
         res.status(500).send(err.message);

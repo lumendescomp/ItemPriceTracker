@@ -124,7 +124,7 @@ function updateChart(data) {
 
 // DATABASE - NODE ACCESS
 function fetchItemsAndUpdateChart() {
-  fetch("http://localhost:3000/api/items")
+  fetch("/api/items")
     .then((response) => response.json())
     .then((data) => {
       // Clear the current chart before redrawing
@@ -144,7 +144,7 @@ function addItem(event) {
   var itemPrice = document.getElementById("itemPrice").value.replace(",", ".");
   var placeName = document.getElementById("placeName").value;
 
-  fetch("http://localhost:3000/api/items", {
+  fetch("/api/items", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

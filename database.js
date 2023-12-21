@@ -1,36 +1,53 @@
-const sqlite3 = require("sqlite3").verbose();
+const { Pool } = require("pg");
 
-// Connect to the SQLite database
-const db = new sqlite3.Database("./mydb.sqlite3", (err) => {
-  if (err) {
-    console.error(err.message);
-  } else {
-    console.log("Connected to the SQLite database.");
-  }
+// Create a new pool using the connection string from an environment variable
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
-// Create a table (if it doesn't exist)
-db.run(`CREATE TABLE IF NOT EXISTS items (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  name TEXT NOT NULL,
-  price REAL NOT NULL,
-  place TEXT
-)`);
+const createTableQuery = `
+  CREATE TABLE IF NOT EXISTS items (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    price REAL NOT NULL,
+    place TEXT
+  )
+`;
+
+// Function to connect to the database and create the table
+function initializeDatabase() {
+  pool.connect((err, client, done) => {
+    if (err) throw err;
+    client.query(createTableQuery, (err, res) => {
+      done();
+      if (err) {
+        console.error(err);
+      } else {
+        console.log("Table is successfully created");
+      }
+    });
+  });
+}
 
 // Function to get items
 function getItems(callback) {
-  const sql = `SELECT * FROM items`;
-  db.all(sql, [], (err, rows) => {
-    callback(err, rows);
+  pool.query("SELECT * FROM items", (err, result) => {
+    callback(err, result.rows);
   });
 }
 
 // Function to add an item
 function addItem(name, price, place, callback) {
-  const sql = `INSERT INTO items (name, price, place) VALUES (?, ?, ?)`;
-  db.run(sql, [name, price, place], function (err) {
-    callback(err, { id: this.lastID });
-  });
+  pool.query(
+    "INSERT INTO items (name, price, place) VALUES ($1, $2, $3) RETURNING id",
+    [name, price, place],
+    (err, result) => {
+      callback(err, result.rows[0]);
+    }
+  );
 }
 
-module.exports = { getItems, addItem };
+module.exports = { getItems, addItem, initializeDatabase };

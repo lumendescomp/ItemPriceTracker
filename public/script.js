@@ -174,6 +174,8 @@ function openInfoPanel(itemData) {
     <p>Nome: ${itemData.name}</p>
     <p>Preço: ${itemData.price}</p>
     <p>Local de Consumo: ${itemData.place || "Não cadastrado"}</p>
+    <input type="password" id="deletePassword" placeholder="Digite a senha para excluir"/>
+    <button onclick="deleteItem(${itemData.id})">Excluir</button>
   `;
 
   // Selecione o painel pelo ID ou classe e atualize o conteúdo
@@ -182,4 +184,64 @@ function openInfoPanel(itemData) {
 
   // Torna o painel visível
   infoPanel.style.display = "block";
+}
+
+function deleteItem(itemId) {
+  const password = document.getElementById("deletePassword").value;
+  fetch(`/api/items/${itemId}`, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ password: password }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        fetchItemsAndUpdateChart();
+      } else {
+        alert("Senha incorreta. Não foi possível excluir o item.");
+      }
+    })
+    .catch((error) => console.error("Error deleting item:", error));
+}
+
+let debounceTimer;
+function debouncedSearch() {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    const searchValue = document.getElementById("searchInput").value;
+    fetchFilteredItems(searchValue);
+  }, 500);
+}
+
+function fetchFilteredItems(query) {
+  fetch(`/api/items/search?q=${encodeURIComponent(query)}`)
+    .then((response) => response.json())
+    .then((data) => {
+      d3.select("#chart").html("");
+      updateChart(data); // Atualize o gráfico com os dados filtrados
+    })
+    .catch((error) => console.error("Error fetching filtered items:", error));
+}
+
+function filterItems() {
+  const searchValue = document.getElementById("searchInput").value;
+  const priceMin = document.getElementById("priceMin").value;
+  const priceMax = document.getElementById("priceMax").value;
+
+  // Agora inclua a faixa de preço na busca
+  fetch(
+    `/api/items/search?q=${encodeURIComponent(
+      searchValue
+    )}&min=${priceMin}&max=${priceMax}`
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      d3.select("#chart").html("");
+      updateChart(data); // Atualize o gráfico com os dados filtrados
+    })
+    .catch((error) =>
+      console.error("Error fetching items with price filter:", error)
+    );
 }

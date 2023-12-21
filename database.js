@@ -50,4 +50,34 @@ function addItem(name, price, place, callback) {
   );
 }
 
-module.exports = { getItems, addItem, initializeDatabase };
+// Function to delete an item
+function deleteItem(id, callback) {
+  pool.query("DELETE FROM items WHERE id = $1", [id], (err, result) => {
+    callback(err, result);
+  });
+}
+
+function searchItemsWithPriceRange(query, minPrice, maxPrice, callback) {
+  const searchQuery = `%${query}%`;
+  const queryText = `
+    SELECT * FROM items
+    WHERE name ILIKE $1
+    AND price >= $2
+    AND price <= $3
+  `;
+  pool.query(
+    queryText,
+    [searchQuery, minPrice || 0, maxPrice || "Infinity"],
+    (err, result) => {
+      callback(err, result.rows);
+    }
+  );
+}
+
+module.exports = {
+  getItems,
+  addItem,
+  deleteItem,
+  searchItemsWithPriceRange,
+  initializeDatabase,
+};

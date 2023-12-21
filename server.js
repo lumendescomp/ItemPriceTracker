@@ -30,6 +30,17 @@ app.get("/api/items", (req, res) => {
   });
 });
 
+app.get("/api/items/search", (req, res) => {
+  const { q, min, max } = req.query;
+  db.searchItemsWithPriceRange(q, min, max, (err, rows) => {
+    if (err) {
+      res.status(500).send(err.message);
+    } else {
+      res.json(rows);
+    }
+  });
+});
+
 // Endpoint to add an item
 app.post("/api/items", (req, res) => {
   const { name, price, place } = req.body;
@@ -40,6 +51,29 @@ app.post("/api/items", (req, res) => {
       res.status(201).json(result);
     }
   });
+});
+
+// Endpoint to delete an item
+app.delete("/api/items/:id", (req, res) => {
+  const { id } = req.params;
+  const { password } = req.body;
+
+  if (password === "apa") {
+    // Substitua pela sua lógica de verificação de senha
+    db.deleteItem(id, (err, result) => {
+      if (err) {
+        res.status(500).send(err.message);
+      } else {
+        res
+          .status(200)
+          .json({ success: true, message: "Item deleted successfully" });
+      }
+    });
+  } else {
+    res
+      .status(401)
+      .json({ success: false, message: "Unauthorized: Incorrect password" });
+  }
 });
 
 // Start the server

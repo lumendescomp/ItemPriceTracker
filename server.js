@@ -43,14 +43,16 @@ app.get("/api/items/search", (req, res) => {
 
 // Endpoint to add an item
 app.post("/api/items", (req, res) => {
-  const { name, price, place, comments, category } = req.body;
-  db.addItem(name, price, place, comments, category, (err, result) => {
-    if (err) {
-      res.status(500).send(err.message);
-    } else {
-      res.status(201).json(result);
-    }
-  });
+  const { name, price, place, comments, category, addPassword } = req.body;
+  if (addPassword == process.env.ADD_DELETE_PASSWORD) {
+    db.addItem(name, price, place, comments, category, (err, result) => {
+      if (err) {
+        res.status(500).send(err.message);
+      } else {
+        res.status(201).json(result);
+      }
+    });
+  }
 });
 
 // Endpoint to delete an item
@@ -58,7 +60,7 @@ app.delete("/api/items/:id", (req, res) => {
   const { id } = req.params;
   const { password } = req.body;
 
-  if (password === "apa") {
+  if (password === process.env.ADD_DELETE_PASSWORD) {
     db.deleteItem(id, (err, result) => {
       if (err) {
         res.status(500).send(err.message);

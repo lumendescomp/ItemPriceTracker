@@ -134,6 +134,8 @@ function addItem(event) {
   const placeName = document.getElementById("placeName").value;
   const comments = document.getElementById("comments").value;
   const category = document.getElementById("itemCategory").value;
+  const addPassword = document.getElementById("addPassword").value;
+  console.log(addPassword);
 
   fetch("/api/items", {
     method: "POST",
@@ -146,7 +148,7 @@ function addItem(event) {
       place: placeName,
       comments: comments,
       category,
-      category,
+      addPassword,
     }),
   })
     .then((response) => response.json())
@@ -158,6 +160,7 @@ function addItem(event) {
       document.getElementById("placeName").value = "";
       document.getElementById("comments").value = "";
       document.getElementById("itemCategory").value = "";
+      document.getElementById("addPassword").value = "";
     })
     .catch((error) => console.error("Error adding item:", error));
 }
@@ -166,8 +169,6 @@ function addItem(event) {
 fetchItemsAndUpdateChart();
 
 function openInfoPanel(itemData) {
-  console.log("Clicked");
-  // Crie o conteúdo do painel com as informações do item
   const panelContent = `
     <h3>Informações do Produto</h3>
     <p>Nome: ${itemData.name.slice(0, itemData.name.indexOf("_"))}</p>
